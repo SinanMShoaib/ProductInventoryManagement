@@ -9,12 +9,12 @@ This is a full stack application, built to manage the flow of incoming and outgo
 By clicking on "add new product" the user can add another type of product or model, User cannot add the same product twice, "laptop" and "Laptop" are considered the same.
 ![Add New Product page Screenshot](./AddNew.png)
 
-## 🛠️ Technologies Used
-* **Frontend:** HTML5, Bootstrap 5, JavaScript (Fetch API), SweetAlert2
+## Technologies Used
+* **Frontend:** HTML5, Bootstrap 5, JavaScript (to Fetch API)
 * **Backend:** ASP.NET Core (C# Minimal API)
 * **Database:** MongoDB (Community Server)
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 1. Install [.NET 8.0 SDK](https://dotnet.microsoft.com/download)
