@@ -1,0 +1,13 @@
+# .NET Core Build Folders (These are huge and auto-generated)
+InventoryBackend/bin/
+InventoryBackend/obj/
+
+# Local application settings (Good practice to hide local connection strings)
+InventoryBackend/appsettings.Development.json
+
+# VS Code workspace settings
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db

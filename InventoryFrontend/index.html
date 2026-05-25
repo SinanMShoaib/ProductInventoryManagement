@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Inventory Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background-color: #f8f9fa; 
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f1f4f8;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+    <div class="hero-section text-center">
+        <h1 class="display-5 fw-bold"><i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Manager</h1>
+        <p class="lead mt-3">A streamlined dashboard to monitor, update, and track your product stock levels in real-time.</p>
+        <hr class="border-light opacity-50 w-50 mx-auto">
+        <p class="small mb-0"><i class="fa-solid fa-database me-1"></i> Connected live to MongoDB</p>
+    </div>
+
+    <div class="card card-custom p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <h3 class="mb-0 text-dark"><i class="fa-solid fa-list-ul me-2"></i> Current Stock</h3>
+            <a href="manage.html" class="btn btn-primary btn-lg shadow-sm">
+                <i class="fa-solid fa-plus me-1"></i> Add New Product
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-secondary">
+                    <tr>
+                        <th class="py-3">Product Name</th>
+                        <th class="py-3">Price</th>
+                        <th class="py-3 text-center">Quantity in Stock</th>
+                        <th class="py-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTable">
+                    </tbody>
+            </table>
+        </div>
+        
+        <div id="emptyState" class="text-center py-5 d-none text-muted">
+            <i class="fa-solid fa-box-open fa-3x mb-3 opacity-50"></i>
+            <h4>Your inventory is empty</h4>
+            <p>Click "Add New Product" to get started.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5161/api/products'; 
+
+        async function loadProducts() {
+            try {
+                const response = await fetch(API_URL);
+                const products = await response.json();
+                
+                const tbody = document.getElementById('inventoryTable');
+                const emptyState = document.getElementById('emptyState');
+                tbody.innerHTML = '';
+
+                if (products.length === 0) {
+                    emptyState.classList.remove('d-none');
+                } else {
+                    emptyState.classList.add('d-none');
+                    products.forEach(product => {
+                        
+                        let stockBadge = product.quantity < 5 
+                            ? `<span class="badge bg-danger rounded-pill px-3 py-2">Low Stock: ${product.quantity}</span>`
+                            : `<span class="badge bg-success rounded-pill px-3 py-2">${product.quantity}</span>`;
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="fw-bold text-dark py-3">${product.name}</td>
+                                <td class="py-3 text-secondary">$${product.price.toFixed(2)}</td>
+                                <td class="text-center py-3">${stockBadge}</td>
+                                <td class="text-end py-3">
+                                    <a href="manage.html?id=${product.id}" class="btn btn-sm btn-outline-primary shadow-sm me-2">
+                                        <i class="fa-solid fa-pen"></i> Edit
+                                    </a>
+                                    <button onclick="deleteProduct('${product.id}')" class="btn btn-sm btn-outline-danger shadow-sm">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>`;
+                    });
+                }
+            } catch (err) {
+                console.error("Error loading data:", err);
+            }
+        }
+
+        async function deleteProduct(id) {
+            const result = await Swal.fire({
+                title: 'Delete this product?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fa-solid fa-trash"></i> Yes, delete it'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    loadProducts(); 
+                    
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: 'The product has been removed.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } catch (err) {
+                    Swal.fire('Error', 'Could not delete the product.', 'error');
+                }
+            }
+        }
+
+        window.onload = loadProducts;
+    </script>
+</body>
+</html>
